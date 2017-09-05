@@ -25,9 +25,9 @@ import net.openhft.chronicle.wire.WireIn;
 import net.openhft.chronicle.wire.WireOut;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.nio.ch.DirectBuffer;
 
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 
 public class ByteBufferDataAccess extends AbstractData<ByteBuffer>
         implements DataAccess<ByteBuffer> {
@@ -88,7 +88,7 @@ public class ByteBufferDataAccess extends AbstractData<ByteBuffer>
     @Override
     public Data<ByteBuffer> getData(@NotNull ByteBuffer instance) {
         bb = instance;
-        if (instance instanceof DirectBuffer) {
+        if (instance instanceof MappedByteBuffer) {
             nativeBytesStore.init(instance, false);
             bytesStore = nativeBytesStore;
         } else {
