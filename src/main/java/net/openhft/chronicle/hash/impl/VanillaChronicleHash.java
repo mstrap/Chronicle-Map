@@ -38,7 +38,6 @@ import net.openhft.chronicle.wire.Marshallable;
 import net.openhft.chronicle.wire.WireIn;
 import net.openhft.chronicle.wire.WireOut;
 import org.jetbrains.annotations.NotNull;
-import sun.misc.Cleaner;
 
 import java.io.Closeable;
 import java.io.File;
@@ -130,7 +129,6 @@ public abstract class VanillaChronicleHash<K,
     private transient File file;
     private transient RandomAccessFile raf;
     private transient ChronicleHashResources resources;
-    private transient Cleaner cleaner;
 
     /////////////////////////////////////////////////
     // Bytes Store (essentially, the base address) and serialization-dependent offsets
@@ -491,7 +489,6 @@ public abstract class VanillaChronicleHash<K,
     }
 
     public void registerCleaner() {
-        this.cleaner = Cleaner.create(this, resources);
     }
 
     public void addToOnExitHook() {
@@ -680,9 +677,7 @@ public abstract class VanillaChronicleHash<K,
     }
 
     protected void cleanupOnClose() {
-        // Releases nothing after resources.releaseManually(), only removes the cleaner
-        // from the internal linked list of all cleaners.
-        cleaner.clean();
+        resources.run();
         ChronicleHashCloseOnExitHook.remove(this);
         // Make GC life easier
         keyReader = null;
